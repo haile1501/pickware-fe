@@ -8,25 +8,25 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import { Product } from 'src/types/redux/inventory';
+import { Orderline } from 'src/types/redux/order';
 
-interface OrdersTableProps {
+interface OrderlinesTableProps {
   count?: number;
   page?: number;
-  rows?: Product[];
+  rows?: Orderline[];
   rowsPerPage?: number;
-  setPage: (page: number) => void;
-  setRowsPerPage: (limit: number) => void;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+  setRowsPerPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export function ItemsTable({
+export function OrderlinesTable({
   count = 0,
   rows = [],
   page = 0,
   rowsPerPage = 0,
   setPage,
   setRowsPerPage,
-}: OrdersTableProps): React.JSX.Element {
+}: OrderlinesTableProps): React.JSX.Element {
   return (
     <Card>
       <Box sx={{ overflowX: 'auto' }}>
@@ -45,12 +45,12 @@ export function ItemsTable({
               return (
                 <TableRow
                   hover
-                  key={item._id}
+                  key={item.product._id}
                 >
-                  <TableCell>{item.sku}</TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{`Block ${item.block}, Aisle ${item.aisle}, Row ${item.row}`}</TableCell>
-                  <TableCell>{item.unit}</TableCell>
+                  <TableCell>{item.product.sku}</TableCell>
+                  <TableCell>{item.product.name}</TableCell>
+                  <TableCell>{`Block ${item.product.block}, Aisle ${item.product.aisle}, Row ${item.product.row}`}</TableCell>
+                  <TableCell>{item.product.unit}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
                 </TableRow>
               );
@@ -63,13 +63,14 @@ export function ItemsTable({
         component="div"
         count={count}
         onPageChange={(event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-          setPage(newPage + 1);
+          setPage(newPage);
         }}
         page={page}
         rowsPerPage={rowsPerPage}
         rowsPerPageOptions={[5, 10, 25]}
         onRowsPerPageChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
           setRowsPerPage(parseInt(event.target.value, 10));
+          setPage(0);
         }}
       />
     </Card>

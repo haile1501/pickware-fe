@@ -1,12 +1,11 @@
 import { Avatar, Box, Stack } from '@mui/material';
 import React from 'react';
-import { LocationStatus } from 'src/types/location';
 
 const colorStatus = {
-  [LocationStatus.EMPTY.toString()]: '#7ECD7D',
-  [LocationStatus.ALMOST_FULL.toString()]: '#FAE392',
-  [LocationStatus.FULL.toString()]: '#FAE392',
+  storageLocation: '#4CAF50',
+  itemLocation: '#FFEB3B',
   aisle: '#fff',
+  route: 'red',
 };
 
 type LocationProps = {
@@ -18,9 +17,9 @@ export function Location(props: LocationProps): React.JSX.Element {
   const { status, hasPicker } = props;
   return (
     <Box
-      bgcolor={colorStatus[status]}
-      width={status === 'aisle' ? '30px' : '25px'}
-      height="25px"
+      bgcolor={colorStatus[status as keyof typeof colorStatus]}
+      width="50px"
+      height="50px"
     >
       {hasPicker && (
         <Stack

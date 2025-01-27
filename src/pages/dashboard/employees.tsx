@@ -2,52 +2,27 @@ import * as React from 'react';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
-import { Employee, EmployeeStatus } from 'src/types/employee';
 import Button from '@mui/material/Button';
 import { EmployeesFilters } from 'src/components/dashboard/employees/employees-filter';
 import { EmployeesTable } from 'src/components/dashboard/employees/employees-table';
-
-const employees = [
-  {
-    id: '1',
-    image: '/assets/avatars/avatar-carson-darrin.png',
-    fullName: 'Le Hoang Hai',
-    address: 'Hai Phong',
-    phone: '09122043',
-    status: EmployeeStatus.PICKING,
-    workload: 0,
-    role: 'picker',
-    username: 'haile1',
-  },
-  {
-    id: '2',
-    image: '/assets/avatars/avatar-carson-darrin.png',
-    fullName: 'Le Hoang Hai',
-    address: 'Hai Phong',
-    phone: '09122043',
-    status: EmployeeStatus.AVAILABLE,
-    workload: 0,
-    role: 'picker',
-    username: 'haile1',
-  },
-  {
-    id: '3',
-    image: '/assets/avatars/avatar-carson-darrin.png',
-    fullName: 'Le Hoang Hai',
-    address: 'Hai Phong',
-    phone: '09122043',
-    status: EmployeeStatus.NOT_AVAILABLE,
-    workload: 0,
-    role: 'picker',
-    username: 'haile1',
-  },
-] satisfies Employee[];
+import { useDispatch, useSelector } from 'src/redux/store';
+import { getEmployeeList } from 'src/redux/slices/employee';
 
 export default function Page(): React.JSX.Element {
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const dispatch = useDispatch();
+  const { employees, paginationData } = useSelector((state) => state.employee);
 
-  const paginatedEmployees = applyPagination(employees, page, rowsPerPage);
+  const handlePageChange = (page: number) => {
+    dispatch(getEmployeeList(page, paginationData.limit));
+  };
+
+  const handleRowPerPageChange = (limit: number) => {
+    dispatch(getEmployeeList(1, limit));
+  };
+
+  React.useEffect(() => {
+    dispatch(getEmployeeList(1, 10));
+  }, []);
 
   return (
     <Stack spacing={3}>
@@ -72,17 +47,13 @@ export default function Page(): React.JSX.Element {
       </Stack>
       <EmployeesFilters />
       <EmployeesTable
-        count={employees.length}
-        page={page}
-        rows={paginatedEmployees}
-        rowsPerPage={rowsPerPage}
-        setPage={setPage}
-        setRowsPerPage={setRowsPerPage}
+        count={paginationData.total}
+        page={paginationData.page - 1}
+        rows={employees}
+        rowsPerPage={paginationData.limit}
+        setPage={handlePageChange}
+        setRowsPerPage={handleRowPerPageChange}
       />
     </Stack>
   );
-}
-
-function applyPagination(rows: Employee[], page: number, rowsPerPage: number): Employee[] {
-  return rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 }

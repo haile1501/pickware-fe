@@ -1,103 +1,31 @@
 import { Box, Card, Grid, Stack, Typography } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
-import { ItemsTable } from 'src/components/dashboard/inventory/items-table';
 import { OrderStatusChip } from 'src/components/dashboard/orders/order-status-chip';
+import { OrderlinesTable } from 'src/components/dashboard/orders/orderlines-table';
+import { getOrderDetail } from 'src/redux/slices/order';
+import { useDispatch, useSelector } from 'src/redux/store';
 import { neonBlue } from 'src/theme/colors';
-import { Item } from 'src/types/item';
-import { Order } from 'src/types/order';
-
-const order = {
-  id: 'abc',
-  customer: {
-    name: 'Hai Le',
-    address: 'Hai Phong',
-    phone: '093451222',
-  },
-  amount: 20,
-  status: 'picking',
-  createdAt: new Date(),
-  orderlines: [
-    {
-      id: 1,
-      sku: 'SKU1',
-      description: 'Toy',
-      location: 'Row 2, Slot 2',
-      unit: 'Each',
-      quantity: 20,
-    },
-    {
-      id: 2,
-      sku: 'SKU1',
-      description: 'Toy',
-      location: 'Row 2, Slot 2',
-      unit: 'Each',
-      quantity: 20,
-    },
-    {
-      id: 3,
-      sku: 'SKU1',
-      description: 'Toy',
-      location: 'Row 2, Slot 2',
-      unit: 'Each',
-      quantity: 20,
-    },
-    {
-      id: 4,
-      sku: 'SKU1',
-      description: 'Toy',
-      location: 'Row 2, Slot 2',
-      unit: 'Each',
-      quantity: 20,
-    },
-    {
-      id: 5,
-      sku: 'SKU1',
-      description: 'Toy',
-      location: 'Row 2, Slot 2',
-      unit: 'Each',
-      quantity: 20,
-    },
-    {
-      id: 6,
-      sku: 'SKU1',
-      description: 'Toy',
-      location: 'Row 2, Slot 2',
-      unit: 'Each',
-      quantity: 20,
-    },
-    {
-      id: 7,
-      sku: 'SKU1',
-      description: 'Toy',
-      location: 'Row 2, Slot 2',
-      unit: 'Each',
-      quantity: 20,
-    },
-    {
-      id: 8,
-      sku: 'SKU1',
-      description: 'Toy',
-      location: 'Row 2, Slot 2',
-      unit: 'Each',
-      quantity: 20,
-    },
-    {
-      id: 9,
-      sku: 'SKU1',
-      description: 'Toy',
-      location: 'Row 2, Slot 2',
-      unit: 'Each',
-      quantity: 20,
-    },
-  ],
-} satisfies Order;
+import { Orderline } from 'src/types/redux/order';
+import dayjs from 'dayjs';
 
 export default function Page(): React.JSX.Element {
   const { orderId } = useParams();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const { orderDetail: order } = useSelector((state) => state.order);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (orderId) {
+      dispatch(getOrderDetail(orderId));
+    }
+  }, []);
+
+  if (!order) {
+    return <></>;
+  }
 
   const paginatedItems = applyPagination(order.orderlines, page, rowsPerPage);
 
@@ -110,7 +38,7 @@ export default function Page(): React.JSX.Element {
           alignItems="center"
           sx={{ flex: '1 1 auto' }}
         >
-          <Typography variant="h4">{`Order ${orderId}`} </Typography>
+          <Typography variant="h4">{`Order ${order.shortId}`} </Typography>
           <OrderStatusChip
             status={order.status}
             size="medium"
@@ -161,7 +89,7 @@ export default function Page(): React.JSX.Element {
                       fontWeight={500}
                       ml={1}
                     >
-                      22:22 22/02/2022
+                      {dayjs(order.createdAt).format('MMM D, YYYY')}
                     </Typography>
                   </Typography>
                 </Box>
@@ -183,7 +111,7 @@ export default function Page(): React.JSX.Element {
                       fontWeight={500}
                       ml={1}
                     >
-                      {order.customer.name}
+                      {order.customerName}
                     </Typography>
                   </Typography>
                   <Typography
@@ -197,7 +125,7 @@ export default function Page(): React.JSX.Element {
                       fontWeight={500}
                       ml={1}
                     >
-                      {order.customer.address}
+                      {order.address}
                     </Typography>
                   </Typography>
                   <Typography
@@ -211,7 +139,7 @@ export default function Page(): React.JSX.Element {
                       fontWeight={500}
                       ml={1}
                     >
-                      {order.customer.phone}
+                      {order.phone}
                     </Typography>
                   </Typography>
                 </Box>
@@ -246,7 +174,7 @@ export default function Page(): React.JSX.Element {
                   fontWeight={500}
                   ml={1}
                 >
-                  {order.customer.address}
+                  {order.address}
                 </Typography>
               </Typography>
               <Typography
@@ -260,7 +188,7 @@ export default function Page(): React.JSX.Element {
                   fontWeight={500}
                   ml={1}
                 >
-                  {order.customer.address}
+                  {order.address}
                 </Typography>
               </Typography>
             </Card>
@@ -269,7 +197,7 @@ export default function Page(): React.JSX.Element {
             item
             xs={12}
           >
-            <ItemsTable
+            <OrderlinesTable
               count={order.orderlines.length}
               page={page}
               rows={paginatedItems}
@@ -284,6 +212,6 @@ export default function Page(): React.JSX.Element {
   );
 }
 
-function applyPagination(rows: Item[], page: number, rowsPerPage: number): Item[] {
+function applyPagination(rows: Orderline[], page: number, rowsPerPage: number): Orderline[] {
   return rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 }

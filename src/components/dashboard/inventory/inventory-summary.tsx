@@ -2,7 +2,15 @@ import Stack from '@mui/material/Stack';
 import React from 'react';
 import Typography from '@mui/material/Typography';
 
-export function InventorySummary() {
+interface InventorySummaryProps {
+  totalValue: number;
+  skuCount: number;
+  inventoryItems: number;
+}
+
+export function InventorySummary(props: InventorySummaryProps) {
+  const { totalValue, skuCount, inventoryItems } = props;
+
   return (
     <Stack
       direction="row"
@@ -20,7 +28,7 @@ export function InventorySummary() {
           variant="h5"
           color="var(--mui-palette-success-main)"
         >
-          $399,204.00
+          ${totalValue.toLocaleString()}
         </Typography>
       </Stack>
       <Stack spacing={1}>
@@ -34,7 +42,7 @@ export function InventorySummary() {
           variant="h5"
           color="var(--mui-palette-success-main)"
         >
-          40
+          {skuCount}
         </Typography>
       </Stack>
       <Stack spacing={1}>
@@ -48,7 +56,7 @@ export function InventorySummary() {
           variant="h5"
           color="var(--mui-palette-success-main)"
         >
-          200
+          {inventoryItems.toLocaleString()}
         </Typography>
       </Stack>
     </Stack>

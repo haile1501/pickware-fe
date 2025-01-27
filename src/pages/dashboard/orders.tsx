@@ -5,75 +5,41 @@ import Typography from '@mui/material/Typography';
 import { Download as DownloadIcon } from '@phosphor-icons/react/dist/ssr/Download';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { Upload as UploadIcon } from '@phosphor-icons/react/dist/ssr/Upload';
-import dayjs from 'dayjs';
 import { OrdersFilters } from 'src/components/dashboard/orders/orders-filters';
 import { OrdersTable } from 'src/components/dashboard/orders/orders-table';
-import { Order } from 'src/types/order';
-
-const orders = [
-  {
-    id: 'ORD-007',
-    customer: { name: 'Ekaterina Tankova' },
-    amount: 30.5,
-    status: 'pending',
-    createdAt: dayjs().subtract(10, 'minutes').toDate(),
-  },
-  {
-    id: 'ORD-006',
-    customer: { name: 'Cao Yu' },
-    amount: 25.1,
-    status: 'fulfilled',
-    createdAt: dayjs().subtract(10, 'minutes').toDate(),
-  },
-  {
-    id: 'ORD-004',
-    customer: { name: 'Alexa Richardson' },
-    amount: 10.99,
-    status: 'picking',
-    createdAt: dayjs().subtract(10, 'minutes').toDate(),
-  },
-  {
-    id: 'ORD-003',
-    customer: { name: 'Anje Keizer' },
-    amount: 96.43,
-    status: 'pending',
-    createdAt: dayjs().subtract(10, 'minutes').toDate(),
-  },
-  {
-    id: 'ORD-002',
-    customer: { name: 'Clarke Gillebert' },
-    amount: 32.54,
-    status: 'fulfilled',
-    createdAt: dayjs().subtract(10, 'minutes').toDate(),
-  },
-  {
-    id: 'ORD-001',
-    customer: { name: 'Adam Denisov' },
-    amount: 16.76,
-    status: 'fulfilled',
-    createdAt: dayjs().subtract(10, 'minutes').toDate(),
-  },
-  {
-    id: 'ORD-009',
-    customer: { name: 'Adam Denisov' },
-    amount: 16.76,
-    status: 'fulfilled',
-    createdAt: dayjs().subtract(10, 'minutes').toDate(),
-  },
-  {
-    id: 'ORD-010',
-    customer: { name: 'Adam Denisov' },
-    amount: 16.76,
-    status: 'fulfilled',
-    createdAt: dayjs().subtract(10, 'minutes').toDate(),
-  },
-] satisfies Order[];
+import { useDispatch, useSelector } from 'src/redux/store';
+import { getOrderList, handleNewOrderCreated } from 'src/redux/slices/order';
+import { WebsocketContext } from 'src/contexts/socket-provider';
+import { toast } from 'react-hot-toast';
+import { Order } from 'src/types/redux/order';
 
 export default function Page(): React.JSX.Element {
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const dispatch = useDispatch();
+  const { orders, paginationData } = useSelector((state) => state.order);
+  const socket = React.useContext(WebsocketContext);
 
-  const paginatedOrders = applyPagination(orders, page, rowsPerPage);
+  const handlePageChange = (page: number) => {
+    dispatch(getOrderList(page, paginationData.limit));
+  };
+
+  const handleRowPerPageChange = (limit: number) => {
+    dispatch(getOrderList(1, limit));
+  };
+
+  React.useEffect(() => {
+    dispatch(getOrderList(1, 10));
+  }, []);
+
+  React.useEffect(() => {
+    socket?.on('order-created', (newOrder: Order) => {
+      toast.success('New order arrived!');
+      dispatch(handleNewOrderCreated(newOrder));
+    });
+
+    return () => {
+      socket?.off('order-created');
+    };
+  }, []);
 
   return (
     <Stack spacing={3}>
@@ -116,17 +82,13 @@ export default function Page(): React.JSX.Element {
       </Stack>
       <OrdersFilters />
       <OrdersTable
-        count={orders.length}
-        page={page}
-        rows={paginatedOrders}
-        rowsPerPage={rowsPerPage}
-        setPage={setPage}
-        setRowsPerPage={setRowsPerPage}
+        count={paginationData.total}
+        page={paginationData.page - 1}
+        rows={orders}
+        rowsPerPage={paginationData.limit}
+        setPage={handlePageChange}
+        setRowsPerPage={handleRowPerPageChange}
       />
     </Stack>
   );
-}
-
-function applyPagination(rows: Order[], page: number, rowsPerPage: number): Order[] {
-  return rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 }

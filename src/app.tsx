@@ -13,6 +13,8 @@ import { useNprogress } from 'src/hooks/use-nprogress';
 import { routes } from 'src/routes';
 import { UserProvider } from './contexts/user-context';
 import { ThemeProvider } from './components/core/theme-provider/theme-provider';
+import { WebsocketProvider } from './contexts/socket-provider';
+import { Toaster } from './components/core/toaster';
 
 export const App: FC = () => {
   useNprogress();
@@ -32,7 +34,10 @@ export const App: FC = () => {
             return (
               <ThemeProvider>
                 <CssBaseline />
-                <UserProvider>{element}</UserProvider>
+                <WebsocketProvider>
+                  <UserProvider>{element}</UserProvider>
+                  <Toaster />
+                </WebsocketProvider>
               </ThemeProvider>
             );
           }}

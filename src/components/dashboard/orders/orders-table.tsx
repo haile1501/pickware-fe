@@ -9,19 +9,18 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import dayjs from 'dayjs';
-import { Order } from 'src/types/order';
 import { Link } from 'react-router-dom';
 import { paths } from 'src/paths';
 import { neonBlue } from 'src/theme/colors';
 import { OrderStatusChip } from './order-status-chip';
-
+import { Order } from 'src/types/redux/order';
 interface OrdersTableProps {
   count?: number;
   page?: number;
   rows?: Order[];
   rowsPerPage?: number;
-  setPage: React.Dispatch<React.SetStateAction<number>>;
-  setRowsPerPage: React.Dispatch<React.SetStateAction<number>>;
+  setPage: (page: number) => void;
+  setRowsPerPage: (limit: number) => void;
 }
 
 export function OrdersTable({
@@ -51,17 +50,17 @@ export function OrdersTable({
               return (
                 <TableRow
                   hover
-                  key={order.id}
+                  key={order.shortId}
                 >
                   <TableCell>
                     <Link
-                      to={`${paths.dashboard.orders}/${order.id}`}
+                      to={`${paths.dashboard.orders}/${order._id}`}
                       style={{ color: neonBlue[500] }}
                     >
-                      {order.id}
+                      {order.shortId}
                     </Link>
                   </TableCell>
-                  <TableCell>{order.customer.name}</TableCell>
+                  <TableCell>{order.customerName}</TableCell>
                   <TableCell>{dayjs(order.createdAt).format('MMM D, YYYY')}</TableCell>
                   <TableCell>{order.amount}</TableCell>
                   <TableCell>
@@ -72,7 +71,7 @@ export function OrdersTable({
                   </TableCell>
                   <TableCell>
                     <Link
-                      to={`${paths.dashboard.orders}/${order.id}`}
+                      to={`${paths.dashboard.orders}/${order._id}`}
                       style={{ color: neonBlue[500] }}
                     >
                       BAT-001
@@ -89,14 +88,13 @@ export function OrdersTable({
         component="div"
         count={count}
         onPageChange={(event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-          setPage(newPage);
+          setPage(newPage + 1);
         }}
         page={page}
         rowsPerPage={rowsPerPage}
         rowsPerPageOptions={[5, 10, 25]}
         onRowsPerPageChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
           setRowsPerPage(parseInt(event.target.value, 10));
-          setPage(0);
         }}
       />
     </Card>
